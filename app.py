@@ -6,21 +6,26 @@ import os
 import torch
 import torch.nn as nn
 from torchvision import models, transforms
+import gdown
 
 # cnn setup
 @st.cache_resource
 def load_ai_model():
     weight_path = 'ai_detector_weights.pth'
+    
+
     if not os.path.exists(weight_path):
-        return None
+        st.info("Downloading AI Model weights (this only happens once)...")
+        # PASTE YOUR EXACT GOOGLE DRIVE FILE ID BELOW
+        file_id = '1SU_HDt0M7CVAaOgykdkEfHinv-FAD_Ja' 
+        url = f'https://drive.google.com/uc?id={file_id}'
+        gdown.download(url, weight_path, quiet=False)
+
         
     try:
-       
         model = models.resnet50(weights=None)
         num_ftrs = model.fc.in_features
         model.fc = nn.Linear(num_ftrs, 2)
-        
-        
         model.load_state_dict(torch.load(weight_path, map_location=torch.device('cpu')))
         model.eval()
         return model
@@ -136,4 +141,5 @@ if uploaded_file:
         st.write(f"**Resolution:** {image_cv.shape[1]}x{image_cv.shape[0]}")
 
 else:
+
     st.info("Upload a forensic sample to begin.")
